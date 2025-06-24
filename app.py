@@ -1,9 +1,11 @@
-from bottle import Bottle
+from bottle import default_app
 from config import Config
+import controllers.livro_controller
+
 
 class App:
     def __init__(self):
-        self.bottle = Bottle()
+        self.bottle = default_app()
         self.config = Config()
 
 

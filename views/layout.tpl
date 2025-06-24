@@ -6,6 +6,8 @@
     <title>Sistema Bottle - {{title or 'Sistema'}}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
+<title>Sistema de Biblioteca</title>
+</head>
 <body>
 
     <div class="container">

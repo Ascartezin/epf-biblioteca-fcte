@@ -1,5 +1,5 @@
-from bottle import Bottle
-from controllers.user_controller import user_routes
+from controllers import livro_controller
 
-def init_controllers(app: Bottle):
-    app.merge(user_routes)
+def init_controllers(app):
+    # Apenas importar o controller já registra as rotas com @route
+    pass
