@@ -1,42 +1,50 @@
-from bottle import request
-from models.user import UserModel, User
+import json
+from pathlib import Path
+from typing import List, Optional
+from models import User 
 
-class UserService:
-    def __init__(self):
-        self.user_model = UserModel()
+class UserModel:
+    def __init__(self, filepath='users.json'):
+        self.filepath = Path(filepath)
+        self.users: List[User] = []
 
-
-    def get_all(self):
-        users = self.user_model.get_all()
-        return users
-
+    def load(self):
+        if not self.filepath.exists():
+            self.users = []
+            return
+        
+        with open(self.filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            self.users = [User.from_dict(user_dict) for user_dict in data]
 
     def save(self):
-        last_id = max([u.id for u in self.user_model.get_all()], default=0)
-        new_id = last_id + 1
-        name = request.forms.get('name')
-        email = request.forms.get('email')
-        birthdate = request.forms.get('birthdate')
+        with open(self.filepath, 'w', encoding='utf-8') as f:
+            json.dump([user.to_dict() for user in self.users], f, indent=4, ensure_ascii=False)
 
-        user = User(id=new_id, name=name, email=email, birthdate=birthdate)
-        self.user_model.add_user(user)
+    def add_user(self, user: User) -> bool:
+        if self.find_user_by_id(user.id) is not None:
+            return False
+        self.users.append(user)
+        return True
 
+    def find_user_by_id(self, user_id) -> Optional[User]:
+        for user in self.users:
+            if user.id == user_id:
+                return user
+        return None
 
-    def get_by_id(self, user_id):
-        return self.user_model.get_by_id(user_id)
+    def update_user(self, user_id, **kwargs) -> bool:
+        user = self.find_user_by_id(user_id)
+        if user is None:
+            return False
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+        return True
 
-
-    def edit_user(self, user):
-        name = request.forms.get('name')
-        email = request.forms.get('email')
-        birthdate = request.forms.get('birthdate')
-
-        user.name = name
-        user.email = email
-        user.birthdate = birthdate
-
-        self.user_model.update_user(user)
-
-
-    def delete_user(self, user_id):
-        self.user_model.delete_user(user_id)
+    def delete_user(self, user_id) -> bool:
+        user = self.find_user_by_id(user_id)
+        if user:
+            self.users.remove(user)
+            return True
+        return False
