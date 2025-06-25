@@ -1,54 +1,76 @@
-from bottle import Bottle, request
-from .base_controller import BaseController
+from bottle import route, template, request, redirect
 from services.user_service import UserService
-
-class UserController(BaseController):
-    def __init__(self, app):
-        super().__init__(app)
-
-        self.setup_routes()
-        self.user_service = UserService()
+from models.user import User
+from controllers.auth import require_login
 
 
-    # Rotas User
-    def setup_routes(self):
-        self.app.route('/users', method='GET', callback=self.list_users)
-        self.app.route('/users/add', method=['GET', 'POST'], callback=self.add_user)
-        self.app.route('/users/edit/<user_id:int>', method=['GET', 'POST'], callback=self.edit_user)
-        self.app.route('/users/delete/<user_id:int>', method='POST', callback=self.delete_user)
+user_service = UserService()
+
+@route('/usuarios')
+def listar_usuarios():
+    users = user_service.get_all_users()
+    return template('users.tpl', usuarios=users)
+
+@route('/usuarios/novo')
+def novo_usuario_form():
+    require_login()
+    return template('user_form.tpl', usuario=None)
 
 
-    def list_users(self):
-        users = self.user_service.get_all()
-        return self.render('users', users=users)
+
+@route('/usuarios/criar', method='POST')
+def criar_usuario():
+    require_login()
+    id = int(request.forms.get('id'))  
+    name = request.forms.get('name')
+    email = request.forms.get('email')
+    birthdate = request.forms.get('birthdate')
+
+    user = User(id=id, name=name, email=email, birthdate=birthdate)
+    user_service.add_user(user)
+    redirect('/usuarios')
 
 
-    def add_user(self):
-        if request.method == 'GET':
-            return self.render('user_form', user=None, action="/users/add")
-        else:
-            # POST - salvar usuário
-            self.user_service.save()
-            self.redirect('/users')
+@route('/usuarios/editar/<user_id:int>')
+def editar_usuario_form(user_id):
+    require_login()
+    user = user_service.find_user_by_id(user_id)
+    if user:
+        return template('user_form.tpl', usuario=user)
+    return "Usuário não encontrado"
 
 
-    def edit_user(self, user_id):
-        user = self.user_service.get_by_id(user_id)
-        if not user:
-            return "Usuário não encontrado"
+@route('/usuarios/atualizar/<user_id:int>', method='POST')
+def atualizar_usuario(user_id):
+    require_login()
+    name = request.forms.get('name')
+    email = request.forms.get('email')
+    birthdate = request.forms.get('birthdate')
 
-        if request.method == 'GET':
-            return self.render('user_form', user=user, action=f"/users/edit/{user_id}")
-        else:
-            # POST - salvar edição
-            self.user_service.edit_user(user)
-            self.redirect('/users')
+    user_service.update_user(user_id, name=name, email=email, birthdate=birthdate)
+    redirect('/usuarios')
 
 
-    def delete_user(self, user_id):
-        self.user_service.delete_user(user_id)
-        self.redirect('/users')
+@route('/usuarios/deletar/<user_id:int>')
+def deletar_usuario(user_id):
+    require_login()
+    user_service.delete_user(user_id)
+    redirect('/usuarios')
+
+#
+@route('/login')
+def login_form():
+    return template('login.tpl')
 
 
-user_routes = Bottle()
-user_controller = UserController(user_routes)
+@route('/login', method='POST')
+def login():
+    email = request.forms.get('email')
+    birthdate = request.forms.get('birthdate')
+
+    if not email or not birthdate:
+        return "Por favor, preencha todos os campos."
+    for user in user_service.get_all_users():
+        if user.email == email and user.birthdate == birthdate:
+            return f"Bem-vindo, {user.name}!"
+    return "Credenciais inválidas"
