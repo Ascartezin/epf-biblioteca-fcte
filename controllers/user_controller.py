@@ -68,9 +68,11 @@ def login():
     email = request.forms.get('email')
     birthdate = request.forms.get('birthdate')
 
-    if not email or not birthdate:
-        return "Por favor, preencha todos os campos."
     for user in user_service.get_all_users():
         if user.email == email and user.birthdate == birthdate:
-            return f"Bem-vindo, {user.name}!"
-    return "Credenciais inválidas"
+            response.set_cookie("logged_user", user.name, path='/')
+            response.set_cookie("usuario_id", str(user.id), path='/')  # ✅ novo cookie com o ID
+            redirect('/usuarios')
+    
+    return template('login.tpl', erro="Credenciais inválidas")
+
