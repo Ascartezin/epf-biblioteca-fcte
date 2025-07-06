@@ -7,7 +7,7 @@ class UserService:
     def __init__(self, filepath='users.json'):
         self.filepath = Path(filepath)
         self.users: List[User] = []
-        self.load()  # Carrega os dados automaticamente ao iniciar
+        self.load()  
 
     def load(self):
         """Carrega os usuários do arquivo JSON."""
@@ -24,9 +24,8 @@ class UserService:
             json.dump([user.to_dict() for user in self.users], f, indent=4, ensure_ascii=False)
 
     def add_user(self, user: User) -> bool:
-        """Adiciona um usuário se o ID ainda não existir."""
         if self.find_user_by_id(user.id) is not None:
-            return False  # Já existe um usuário com esse ID
+            return False  
         self.users.append(user)
         self.save()
         return True
@@ -39,12 +38,11 @@ class UserService:
         return None
 
     def update_user(self, user_id: int, **kwargs) -> bool:
-        """Atualiza os dados de um usuário com base no ID."""
         user = self.find_user_by_id(user_id)
         if user is None:
             return False
 
-        # Atualiza os atributos se estiverem presentes em kwargs
+      
         user.name = kwargs.get('name', user.name)
         user.email = kwargs.get('email', user.email)
         user.birthdate = kwargs.get('birthdate', user.birthdate)
@@ -53,7 +51,6 @@ class UserService:
         return True
 
     def delete_user(self, user_id: int) -> bool:
-        """Remove o usuário com o ID informado."""
         user = self.find_user_by_id(user_id)
         if user is None:
             return False
@@ -62,5 +59,4 @@ class UserService:
         return True
 
     def get_all_users(self) -> List[User]:
-        """Retorna a lista de todos os usuários."""
         return self.users
