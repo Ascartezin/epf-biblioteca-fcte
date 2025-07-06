@@ -1,5 +1,6 @@
 from controllers import livro_controller
+from controllers.base_controller import BaseController
 
 def init_controllers(app):
-    # Apenas importar o controller já registra as rotas com @route
-    pass
+     BaseController(app)
+    

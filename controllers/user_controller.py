@@ -76,3 +76,7 @@ def login():
     
     return template('login.tpl', erro="Credenciais inválidas")
 
+def require_login():
+    if not request.get_cookie("usuario_id"):
+        redirect('/login')
+
