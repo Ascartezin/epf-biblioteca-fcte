@@ -9,8 +9,41 @@ Utiliza o microframework **Bottle**. Ideal para uso em disciplinas introdutória
 Fornecer uma base simples, extensível e didática para construção de aplicações web orientadas a objetos com aplicações WEB em Python, ideal para trabalhos finais ou exercícios práticos.
 
 ---
-## Funcionalidades
-Este projeto consiste num sistema de biblioteca virtual, no qual, a partir de um login, é possível gerenciar livros (adicionar, editar, exlcuir e apagar), e marcar livros como emprestados ou disponíveis. 
+## 🎯 Funcionalidades do Sistema
+
+### 👤 Usuários
+- Cadastro de novos usuários (restrito a administradores)
+- Login de usuários por e-mail e data de nascimento
+- Cookies de sessão para manter usuários logados
+- Dois tipos de usuários: **Administrador** (acesso total) e **Aluno** (acesso restrito)
+- Logout com remoção de cookies
+
+### 📖 Livros
+- Listagem pública de livros
+- Cadastro, edição e exclusão de livros (apenas por administradores)
+- Validação de campos obrigatórios como título e autor
+
+### 📚 Empréstimos *(em desenvolvimento)*
+- Visualização de empréstimos do usuário autenticado
+- Criação de novos empréstimos
+- Regras de negócio previstas: limite de livros por aluno, controle de datas
+
+### 🎨 Interface
+- Layout responsivo com CSS customizado
+- Menu horizontal estilizado
+- Rodapé fixo com direitos autorais
+- Uso de `layout.tpl` como template base
+
+### 🛡️ Segurança e Controle de Acesso
+- Proteção de rotas com `require_login()`
+- Redirecionamento automático para o login quando necessário
+
+### 💾 Persistência com JSON
+- Dados persistidos em arquivos `.json`:
+  - `users.json`
+  - `livros.json`
+  - *(futuramente)* `emprestimos.json`
+- Operações CRUD feitas diretamente sobre esses arquivos 
 ---
 
 ## 🗂 Estrutura de Pastas
