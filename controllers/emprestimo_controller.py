@@ -1,15 +1,15 @@
 from bottle import route, request, template, redirect
 from datetime import datetime
+from controllers.auth import require_login
 from services.emprestimo import emprestimo_service
 from services.user_service import user_service
 from services.livro_service import livro_service
 from models.emprestimo import Emprestimo
-from controllers.auth import require_login
 
 @route('/emprestimos')
 @require_login
 def listar_emprestimos():
-    user_email = request.get_cookie("logged_user", secret='SUA-CHAVE-SECRETA-MUITO-FORTE')
+    user_email = request.get_cookie("logged_user", secret='Senha-123!')
     usuario = user_service.find_user_by_email(user_email)
     
     emprestimos = []
@@ -29,7 +29,7 @@ def novo_emprestimo_form():
 @route('/emprestimos/criar', method='POST')
 @require_login
 def criar_emprestimo():
-    user_email = request.get_cookie("logged_user", secret='SUA-CHAVE-SECRETA-MUITO-FORTE')
+    user_email = request.get_cookie("logged_user", secret='Senha-123!')
     usuario = user_service.find_user_by_email(user_email)
     livro_id = int(request.forms.get('livro_id'))
     
