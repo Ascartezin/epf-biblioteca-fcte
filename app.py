@@ -1,7 +1,7 @@
 from bottle import default_app
 from config import Config
 import controllers.livro_controller
-
+import controllers.user_controller
 
 class App:
     def __init__(self):

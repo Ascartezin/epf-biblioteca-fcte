@@ -97,6 +97,31 @@ def deletar_usuario(user_id):
     user_service.delete_user(user_id)
     redirect('/usuarios')
 
+# Tela de login
+@route('/login', method='GET')
+def login_form():
+    return template('login.tpl', erro=None, title='Login')
+
+# Autenticação
+@route('/login', method='POST')
+def login():
+    email = request.forms.get('email')
+    birthdate = request.forms.get('birthdate')
+
+    for user in user_service.get_all_users():
+        if user.email == email and user.birthdate == birthdate:
+            response.set_cookie("usuario_id", str(user.id), path='/')
+            redirect('/usuarios')
+
+    return template('login.tpl', erro="Credenciais inválidas", title='Login')
+
+# Logout
+@route('/logout')
+def logout():
+    response.delete_cookie("usuario_id", path='/')
+    redirect('/')
+
+
 
 # Validação de dados do usuário
 def validar_usuario(name, email, birthdate, senha=None):
