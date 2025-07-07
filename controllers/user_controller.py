@@ -1,131 +1,20 @@
-from bottle import route, template, request, redirect, response
+
+from bottle import route, template, request, redirect, response, abort
+import re
+from datetime import datetime
 from services.user_service import UserService
 from models.user import User
 from controllers.auth import require_login
 import bcrypt
 import bottle
 
-# Torna o objeto request acessível em todos os templates
-bottle.BaseTemplate.defaults['request'] = request
 
-# Instancia o serviço de usuários
+bottle.BaseTemplate.defaults['request'] = request
 user_service = UserService()
 
 
-# Lista todos os usuários
-@route('/usuarios')
-def listar_usuarios():
-    require_login()
-    users = user_service.get_all_users()
-    return template('users.tpl', usuarios=users, title='Usuários')
-
-
-# Formulário para novo usuário
-@route('/usuarios/novo')
-def novo_usuario_form():
-    require_login()
-    return template('user_form.tpl', usuario=None, erro=None, title='Novo Usuário')
-
-
-# Criação de novo usuário
-@route('/usuarios/criar', method='POST')
-def criar_usuario():
-    require_login()
-
-    name = request.forms.get('name')
-    email = request.forms.get('email')
-    birthdate = request.forms.get('birthdate')
-    senha = request.forms.get('senha')
-
-    erro = validar_usuario(name, email, birthdate, senha)
-    if erro:
-        usuario_dict = {'name': name, 'email': email, 'birthdate': birthdate}
-        return template('user_form.tpl', usuario=usuario_dict, erro=erro, title='Novo Usuário')
-
-    senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
-    user = User(id=None, name=name, email=email, birthdate=birthdate, senha_hash=senha_hash)
-    user_service.add_user(user)
-    redirect('/usuarios')
-
-
-# Formulário de edição
-@route('/usuarios/editar/<user_id:int>')
-def editar_usuario_form(user_id):
-    require_login()
-    user = user_service.find_user_by_id(user_id)
-    if user:
-        return template('user_form.tpl', usuario=user, erro=None, title='Editar Usuário')
-    return "Usuário não encontrado"
-
-
-# Atualização de dados do usuário
-@route('/usuarios/atualizar', method='POST')
-def atualizar_usuario():
-    require_login()
-
-    id = int(request.forms.get('id'))
-    name = request.forms.get('name')
-    email = request.forms.get('email')
-    birthdate = request.forms.get('birthdate')
-    senha = request.forms.get('senha')
-
-    user_existente = user_service.find_user_by_id(id)
-    if not user_existente:
-        return "Usuário não encontrado"
-
-    erro = validar_usuario(name, email, birthdate, senha if senha else None)
-    if erro:
-        # Atualiza os dados para mostrar no form
-        user_existente.name = name
-        user_existente.email = email
-        user_existente.birthdate = birthdate
-        return template('user_form.tpl', usuario=user_existente, erro=erro, title='Editar Usuário')
-
-    if senha:
-        senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
-        user_service.update_user(id, name=name, email=email, birthdate=birthdate, senha_hash=senha_hash)
-    else:
-        user_service.update_user(id, name=name, email=email, birthdate=birthdate)
-
-    redirect('/usuarios')
-
-
-# Deletar usuário
-@route('/usuarios/deletar/<user_id:int>')
-def deletar_usuario(user_id):
-    require_login()
-    user_service.delete_user(user_id)
-    redirect('/usuarios')
-
-# Tela de login
-@route('/login', method='GET')
-def login_form():
-    return template('login.tpl', erro=None, title='Login')
-
-# Autenticação
-@route('/login', method='POST')
-def login():
-    email = request.forms.get('email')
-    birthdate = request.forms.get('birthdate')
-
-    for user in user_service.get_all_users():
-        if user.email == email and user.birthdate == birthdate:
-            response.set_cookie("usuario_id", str(user.id), path='/')
-            redirect('/usuarios')
-
-    return template('login.tpl', erro="Credenciais inválidas", title='Login')
-
-# Logout
-@route('/logout')
-def logout():
-    response.delete_cookie("usuario_id", path='/')
-    redirect('/')
-
-
-
-# Validação de dados do usuário
 def validar_usuario(name, email, birthdate, senha=None):
-    import re
+    """Valida os dados do usuário."""
     if not name or not email or not birthdate:
         return "Nome, email e data de nascimento são obrigatórios."
 
@@ -133,12 +22,95 @@ def validar_usuario(name, email, birthdate, senha=None):
         return "Email inválido."
 
     try:
-        from datetime import datetime
         datetime.strptime(birthdate, '%Y-%m-%d')
     except ValueError:
-        return "Data de nascimento inválida."
+        return "Data de nascimento inválida. Use o formato AAAA-MM-DD."
 
-    if senha is not None and len(senha) < 6:
+   
+    if senha and len(senha) < 6:
         return "Senha deve ter ao menos 6 caracteres."
 
     return None
+
+@route('/usuarios')
+def listar_usuarios():
+    require_login()
+    users = user_service.get_all_users()
+    return template('users.tpl', usuarios=users, title='Usuários')
+
+@route('/usuarios/novo')
+def novo_usuario_form():
+    return template('user_form.tpl', usuario=None, erro=None, title='Criar Nova Conta')
+
+@route('/usuarios/criar', method='POST')
+def criar_usuario():
+    name = request.forms.get('name')
+    email = request.forms.get('email')
+    birthdate = request.forms.get('birthdate')
+    senha = request.forms.get('senha')
+
+    erro = validar_usuario(name, email, birthdate, senha)
+    if erro:
+        usuario_temporario = User.from_dict({
+            'name': name, 'email': email, 'birthdate': birthdate
+        })
+        return template('user_form.tpl', usuario=usuario_temporario, erro=erro, title='Criar Nova Conta')
+    
+    senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
+    user = User(id=None, name=name, email=email, birthdate=birthdate, senha_hash=senha_hash)
+    
+    if user_service.add_user(user):
+        redirect('/login')
+    else:
+        erro = f"O email '{email}' já está em uso."
+        usuario_temporario = User.from_dict({
+            'name': name, 'email': email, 'birthdate': birthdate
+        })
+        return template('user_form.tpl', usuario=usuario_temporario, erro=erro, title='Criar Nova Conta')
+
+@route('/usuarios/editar/<user_id:int>')
+def editar_usuario_form(user_id):
+    require_login()
+    user = user_service.find_user_by_id(user_id)
+    if not user:
+        
+        abort(404, "Usuário não encontrado.")
+    return template('user_form.tpl', usuario=user, erro=None, title='Editar Usuário')
+
+@route('/usuarios/atualizar', method='POST')
+def atualizar_usuario():
+    require_login()
+    user_id = int(request.forms.get('id'))
+    name = request.forms.get('name')
+    email = request.forms.get('email')
+    birthdate = request.forms.get('birthdate')
+    senha = request.forms.get('senha')
+
+    user_existente = user_service.find_user_by_id(user_id)
+    if not user_existente:
+        abort(404, "Usuário não encontrado.")
+
+    
+    erro = validar_usuario(name, email, birthdate, senha if senha else None)
+    if erro:
+        
+        dados_submetidos = {'id': user_id, 'name': name, 'email': email, 'birthdate': birthdate}
+        return template('user_form.tpl', usuario=dados_submetidos, erro=erro, title='Editar Usuário')
+
+    dados_atualizacao = {'name': name, 'email': email, 'birthdate': birthdate}
+    if senha:
+        dados_atualizacao['senha_hash'] = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
+    
+    user_service.update_user(user_id, **dados_atualizacao)
+    redirect('/usuarios')
+
+
+@route('/usuarios/deletar/<user_id:int>', method='POST')
+def deletar_usuario(user_id):
+    require_login()
+    
+    if not user_service.find_user_by_id(user_id):
+        abort(404, "Usuário não encontrado para deletar.")
+    user_service.delete_user(user_id)
+    redirect('/usuarios')
+    

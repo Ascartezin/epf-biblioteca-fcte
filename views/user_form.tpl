@@ -1,47 +1,45 @@
-% rebase('layout.tpl')
-
-% is_edicao = usuario and (usuario.get('id') if isinstance(usuario, dict) else usuario.id)
-
-<h2>{{ 'Editar Usuário' if is_edicao else 'Novo Usuário' }}</h2>
+% rebase('layout.tpl', title=title)
 
 % if erro:
-    <div class="alert alert-danger">{{ erro }}</div>
+<div class="alert alert-danger">
+    {{ erro }}
+</div>
 % end
 
-<form method="post" action="{{ '/usuarios/atualizar' if is_edicao else '/usuarios/criar' }}">
-    % if is_edicao:
-        <input type="hidden" name="id" value="{{ usuario.get('id') if isinstance(usuario, dict) else usuario.id }}">
+<form action="{{ '/usuarios/atualizar' if (usuario and hasattr(usuario, 'id')) else '/usuarios/criar' }}" method="post">
+
+    % # A condição agora verifica se 'usuario' existe E se ele possui o atributo 'id'
+    % if usuario and hasattr(usuario, 'id') and usuario.id:
+        <input type="hidden" name="id" value="{{ usuario.id }}">
     % end
 
     <div class="mb-3">
-        <label for="name" class="form-label">Nome</label>
-        <input type="text" id="name" name="name" required class="form-control"
-               value="{{ usuario.get('name') if isinstance(usuario, dict) else usuario.name }}">
+        <label for="name" class="form-label">Nome:</label>
+        <input type="text" name="name" id="name" class="form-control" 
+               value="{{ usuario.name if usuario else '' }}" required>
     </div>
 
     <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" name="email" required class="form-control"
-               value="{{ usuario.get('email') if isinstance(usuario, dict) else usuario.email }}">
+        <label for="email" class="form-label">E-mail:</label>
+        <input type="email" name="email" id="email" class="form-control" 
+               value="{{ usuario.email if usuario else '' }}" required>
     </div>
 
     <div class="mb-3">
-        <label for="birthdate" class="form-label">Data de nascimento</label>
-        <input type="date" id="birthdate" name="birthdate" required class="form-control"
-               value="{{ usuario.get('birthdate') if isinstance(usuario, dict) else usuario.birthdate }}">
+        <label for="birthdate" class="form-label">Data de Nascimento:</label>
+        <input type="date" name="birthdate" id="birthdate" class="form-control"
+               value="{{ usuario.birthdate if usuario else '' }}" required>
     </div>
 
     <div class="mb-3">
-        <label for="senha" class="form-label">Senha</label>
-        <input type="password" id="senha" name="senha" class="form-control"
-               {{ '' if is_edicao else 'required' }}>
-        % if is_edicao:
-            <div class="form-text">Deixe em branco para manter a senha atual.</div>
+        <label for="senha" class="form-label">Senha:</label>
+        <input type="password" name="senha" id="senha" class="form-control" 
+               placeholder="{{ 'Deixe em branco para não alterar' if (usuario and hasattr(usuario, 'id')) else '' }}">
+        % if not (usuario and hasattr(usuario, 'id')):
+        <small class="form-text text-muted">A senha é obrigatória para novos usuários.</small>
         % end
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        {{ 'Atualizar' if is_edicao else 'Cadastrar' }}
-    </button>
+    <button type="submit" class="btn btn-primary">{{ 'Atualizar' if (usuario and hasattr(usuario, 'id')) else 'Criar' }}</button>
     <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
 </form>

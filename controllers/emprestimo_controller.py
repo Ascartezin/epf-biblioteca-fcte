@@ -1,53 +1,62 @@
 from bottle import route, request, template, redirect
-from controllers.auth_controller import require_login
-from services.emprestimo import EmprestimoService
-from services.user_service import UserService
-from services.livro_service import LivroService
 from datetime import datetime
+from controllers.auth_controller import require_login
+from services.emprestimo import emprestimo_service
+from services.user_service import user_service
+from services.livro_service import livro_service
 from models.emprestimo import Emprestimo
 
-emprestimo_service = EmprestimoService()
-user_service = UserService()
-livro_service = LivroService()
-
 @route('/emprestimos')
+@require_login
 def listar_emprestimos():
-    require_login()
-    usuario_id = int(request.get_cookie("usuario_id"))  # ID real
-    emprestimos = emprestimo_service.get_emprestimos_usuario(usuario_id)
-    return template('emprestimos.tpl', emprestimos=emprestimos, livros=livro_service.livros)
+    user_email = request.get_cookie("logged_user", secret='SUA-CHAVE-SECRETA-MUITO-FORTE')
+    usuario = user_service.find_user_by_email(user_email)
+    
+    emprestimos = []
+    if usuario:
+        emprestimos = emprestimo_service.get_emprestimos_usuario(usuario.id)
+    
+    livros_emprestados = [livro_service.find_livro_by_id(e.livro_id) for e in emprestimos]
+
+    return template('emprestimos_list.tpl', emprestimos=emprestimos, livros=livros_emprestados, title="Meus Empréstimos")
 
 @route('/emprestimos/novo')
+@require_login
 def novo_emprestimo_form():
-    require_login()
-    livros_disponiveis = [l for l in livro_service.livros if l.disponivel]
-    return template('emprestimo_form.tpl', livros=livros_disponiveis)
+    livros_disponiveis = livro_service.get_livros_disponiveis()
+    return template('emprestimo_form.tpl', livros=livros_disponiveis, title="Novo Empréstimo")
 
 @route('/emprestimos/criar', method='POST')
+@require_login
 def criar_emprestimo():
-    require_login()
-    usuario_id = int(request.get_cookie("usuario_id"))
+    user_email = request.get_cookie("logged_user", secret='SUA-CHAVE-SECRETA-MUITO-FORTE')
+    usuario = user_service.find_user_by_email(user_email)
     livro_id = int(request.forms.get('livro_id'))
-    data_retirada = datetime.today().strftime('%Y-%m-%d')
+    
+    if not usuario:
+        return redirect('/login')
 
-    novo = Emprestimo(
-        id=emprestimo_service.gerar_id(),
-        usuario_id=usuario_id,
+    novo_emprestimo = Emprestimo(
+        id=None,
+        usuario_id=usuario.id,
         livro_id=livro_id,
-        data_retirada=data_retirada
+        data_retirada=datetime.today().strftime('%Y-%m-%d'),
+        data_devolucao=None
     )
 
-    emprestimo_service.adicionar_emprestimo(novo)
+    emprestimo_service.adicionar_emprestimo(novo_emprestimo)
     livro_service.marcar_como_indisponivel(livro_id)
+
     redirect('/emprestimos')
 
-@route('/emprestimos/devolver/<emprestimo_id:int>')
+@route('/emprestimos/devolver/<emprestimo_id:int>', method='POST')
+@require_login
 def devolver(emprestimo_id):
-    require_login()
-    hoje = datetime.today().strftime('%Y-%m-%d')
-    emprestimo_service.devolver_livro(emprestimo_id, hoje)
-    redirect('/emprestimos')
+    emprestimo = emprestimo_service.find_emprestimo_by_id(emprestimo_id)
 
-def require_login():
-    if not request.get_cookie("usuario_id"):
-        redirect('/login')
+    if emprestimo:
+        hoje = datetime.today().strftime('%Y-%m-%d')
+        emprestimo_service.devolver_livro(emprestimo_id, hoje)
+        livro_service.marcar_como_disponivel(emprestimo.livro_id)
+
+    redirect('/emprestimos')

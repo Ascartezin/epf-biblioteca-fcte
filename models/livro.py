@@ -1,3 +1,5 @@
+
+
 class Livro:
     def __init__(self, id, titulo, autor, disponivel=True):
         self.id = id
@@ -13,11 +15,11 @@ class Livro:
             'disponivel': self.disponivel
         }
 
-    @staticmethod
-    def from_dict(dados):
-        return Livro(
-            id=dados['id'],
-            titulo=dados['titulo'],
-            autor=dados['autor'],
-            disponivel=dados.get('disponivel', True)
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id=data.get('id'),
+            titulo=data.get('titulo'),
+            autor=data.get('autor'),
+            disponivel=data.get('disponivel', True)
         )
