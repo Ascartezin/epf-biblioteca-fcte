@@ -1,30 +1,28 @@
-% rebase('layout', title='Formulário Usuário')
+% rebase('layout.tpl')
 
-<section class="form-section">
-    <h1>{{'Editar Usuário' if user else 'Adicionar Usuário'}}</h1>
-    
-    <form action="{{action}}" method="post" class="form-container">
-        <div class="form-group">
-            <label for="name">Nome:</label>
-            <input type="text" id="name" name="name" required 
-                   value="{{user.name if user else ''}}">
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required 
-                   value="{{user.email if user else ''}}">
-        </div>
-        
-        <div class="form-group">
-            <label for="birthdate">Data de Nascimento:</label>
-            <input type="date" id="birthdate" name="birthdate" required 
-                   value="{{user.birthdate if user else ''}}">
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn-submit">Salvar</button>
-            <a href="/users" class="btn-cancel">Voltar</a>
-        </div>
-    </form>
-</section>
+<h2>Cadastrar Novo Usuário</h2>
+
+<form method="post" action="/usuarios/criar" class="mt-4">
+    <div class="mb-3">
+        <label for="id" class="form-label">ID:</label>
+        <input type="number" name="id" id="id" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Nome:</label>
+        <input type="text" name="name" id="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">E-mail:</label>
+        <input type="email" name="email" id="email" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="birthdate" class="form-label">Data de Nascimento:</label>
+        <input type="date" name="birthdate" id="birthdate" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-success">Cadastrar</button>
+    <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
+</form>
