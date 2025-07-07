@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "name": "arthur",
+        "email": "arthurmezzaroba@gmail.com",
+        "birthdate": "2005-12-14",
+        "senha_hash": "$2b$12$h1iDDeQcs0jtS0XcmCmQ7.PvfEFsBaoNNJlFaumIzH9SVfUShh0oS"
+    }
+]

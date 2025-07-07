@@ -9,6 +9,9 @@ Utiliza o microframework **Bottle**. Ideal para uso em disciplinas introdutória
 Fornecer uma base simples, extensível e didática para construção de aplicações web orientadas a objetos com aplicações WEB em Python, ideal para trabalhos finais ou exercícios práticos.
 
 ---
+## Funcionalidades
+Este projeto consiste num sistema de biblioteca virtual, no qual, a partir de um login, é possível gerenciar livros (adicionar, editar, exlcuir e apagar), e marcar livros como emprestados ou disponíveis. 
+---
 
 ## 🗂 Estrutura de Pastas
 
@@ -27,7 +30,122 @@ poo-python-bottle-template/
 ├── data/ # Arquivos JSON de dados
 └── .vscode/ # Configurações opcionais do VS Code
 ```
+---
+## Diagrama de classes
 
++----------------+
+|     User       |
++----------------+
+| - id: int      |
+| - name: str    |
+| - email: str   |
+| - birthdate: str |
+| - senha_hash: bytes |
++----------------+
+| +__init__()    |
+
++------------------------+
+|     UserService        |
++------------------------+
+| - users: List[User]    |
++------------------------+
+| +get_all_users()       |
+| +add_user(user)        |
+| +find_user_by_id(id)   |
+| +update_user(...)      |
+| +delete_user(id)       |
+
++------------------------+
+|     Livro              |
++------------------------+
+| - id: int              |
+| - titulo: str          |
+| - autor: str           |
+| - ano: int             |
+| - editora: str         |
+| - disponivel: bool     |
++------------------------+
+| +__init__()            |
+
++------------------------+
+|     LivroService       |
++------------------------+
+| - livros: List[Livro]  |
++------------------------+
+| +get_all_livros()      |
+| +add_livro(livro)      |
+| +find_livro_by_id(id)  |
+| +update_livro(...)     |
+| +delete_livro(id)      |
+
++--------------------------+
+|    Emprestimo            |
++--------------------------+
+| - id: int                |
+| - livro_id: int          |
+| - usuario_id: int        |
+| - data_emprestimo: str   |
+| - data_devolucao: str    |
++--------------------------+
+| +__init__()              |
+
++-----------------------------+
+|    EmprestimoService        |
++-----------------------------+
+| - emprestimos: List[Emprestimo] |
++-----------------------------+
+| +get_all_emprestimos()      |
+| +add_emprestimo(emp)        |
+| +find_by_id(id)             |
+| +update_emprestimo(...)     |
+| +delete_emprestimo(id)      |
+
++-----------------------+
+|     Auth (função)     |
++-----------------------+
+| +require_login()      |
+
++--------------------------+
+|     Controllers          |
++--------------------------+
+| +user_controller         |
+| +livro_controller        |
+| +emprestimo_controller   |
++--------------------------+
+
++------------------------+
+|     Views (.tpl)       |
++------------------------+
+| - layout.tpl           |
+| - login.tpl            |
+| - users.tpl            |
+| - user_form.tpl        |
+| - livros.tpl           |
+| - livro_form.tpl       |
+| - emprestimos.tpl      |
+| - emprestimo_form.tpl  |
++------------------------+
+
++------------------------+
+|        App             |
++------------------------+
+| - config: Config       |
+| - bottle: default_app  |
++------------------------+
+| +setup_routes()        |
+| +run()                 |
+
++-------------------+
+|     Config        |
++-------------------+
+| - HOST: str       |
+| - PORT: int       |
+| - DEBUG: bool     |
+| - RELOADER: bool  |
++-------------------+
+
+
+---
 
 ---
 
@@ -84,21 +202,6 @@ python main.py
 ```
 
 4. Accese sua aplicação no navegador em: [http://localhost:8080](http://localhost:8080)
-
----
-
-## ✍️ Personalização
-Para adicionar novos modelos (ex: Atividades):
-
-1. Crie a classe no diretório **models/**.
-
-2. Crie o service correspondente para manipulação do JSON.
-
-3. Crie o controller com as rotas.
-
-4. Crie as views .tpl associadas.
-
----
 
 ## 🧠 Autor e Licença
 Projeto desenvolvido como template didático para disciplinas de Programação Orientada a Objetos, baseado no [BMVC](https://github.com/hgmachine/bmvc_start_from_this).
