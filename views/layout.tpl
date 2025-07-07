@@ -6,7 +6,8 @@
     <title>Sistema Bottle - {{title or 'Sistema'}}</title>
     <link rel="stylesheet" href="/static/css/style.css" />
 </head>
-<title>Sistema de Biblioteca</title>
+<title>Sistema Bottle - {{title or 'Sistema'}}</title>
+
 </head>
 <body>
 
@@ -15,7 +16,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2025, Meu Projeto. Todos os direitos reservados.</p>
+        <p>&copy; 2025, Biblioteca FCTE. Todos os direitos reservados.</p>
     </footer>
 
     <!-- Scripts JS no final do body -->

@@ -1,1 +1,7 @@
-[]
+[
+    {
+        "id": "12345678",
+        "titulo": "Dom Casmurro",
+        "autor": "Machado de Assis"
+    }
+]

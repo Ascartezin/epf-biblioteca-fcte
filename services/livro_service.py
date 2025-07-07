@@ -9,8 +9,12 @@ def carregar_livros():
     if not os.path.exists(CAMINHO_ARQUIVO):
         return []
     with open(CAMINHO_ARQUIVO, 'r', encoding='utf-8') as f:
-        dados = json.load(f)
-        return [Livro.from_dict(d) for d in dados]
+        try:
+            dados = json.load(f)
+            return [Livro.from_dict(d) for d in dados]
+        except json.JSONDecodeError:
+            return []
+    
 
 # Salva a lista de livros no arquivo JSON
 def salvar_livros(lista):
