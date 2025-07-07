@@ -1,62 +1,61 @@
 import json
-from pathlib import Path
-from typing import List, Optional
-from models.user import User 
+from models.user import User
 
 class UserService:
     def __init__(self, filepath='users.json'):
-        self.filepath = Path(filepath)
-        self.users: List[User] = []
-        self.load()  
+        self.filepath = filepath
+        self.users = self.load()
 
     def load(self):
-        """Carrega os usuários do arquivo JSON."""
-        if not self.filepath.exists():
-            self.users = []
-            return
-        with open(self.filepath, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            self.users = [User.from_dict(user_dict) for user_dict in data]
+        try:
+            with open(self.filepath, 'r') as f:
+                data = json.load(f)
+                return [User.from_dict(u) for u in data]
+        except FileNotFoundError:
+            return []
 
     def save(self):
-        """Salva a lista de usuários no arquivo JSON."""
-        with open(self.filepath, 'w', encoding='utf-8') as f:
-            json.dump([user.to_dict() for user in self.users], f, indent=4, ensure_ascii=False)
+        with open(self.filepath, 'w') as f:
+            json.dump([u.to_dict() for u in self.users], f, indent=4)
 
-    def add_user(self, user: User) -> bool:
-        if self.find_user_by_id(user.id) is not None:
-            return False  
+    def get_all_users(self):
+        return self.users
+
+    def add_user(self, user: User):
+        # CORREÇÃO: Gera um ID único para o novo usuário
+        # Se a lista estiver vazia, o primeiro ID será 1.
+        # Caso contrário, pega o ID máximo e incrementa.
+        max_id = max(u.id for u in self.users) if self.users else 0
+        user.id = max_id + 1
+
         self.users.append(user)
         self.save()
-        return True
 
-    def find_user_by_id(self, user_id: int) -> Optional[User]:
-        """Busca um usuário pelo ID."""
+    def find_user_by_id(self, user_id):
         for user in self.users:
             if user.id == user_id:
                 return user
         return None
 
-    def update_user(self, user_id: int, **kwargs) -> bool:
+    def find_user_by_email(self, email):
+        for user in self.users:
+            if user.email == email:
+                return user
+        return None
+
+    def update_user(self, user_id, **kwargs):
         user = self.find_user_by_id(user_id)
-        if user is None:
-            return False
+        if user:
+            for key, value in kwargs.items():
+                setattr(user, key, value)
+            self.save()
+            return True
+        return False
 
-      
-        user.name = kwargs.get('name', user.name)
-        user.email = kwargs.get('email', user.email)
-        user.birthdate = kwargs.get('birthdate', user.birthdate)
-        
+    def delete_user(self, user_id):
+        user_to_delete = self.find_user_by_id(user_id)
+        if not user_to_delete:
+            return # Usuário não encontrado, não faz nada
+
+        self.users = [user for user in self.users if user.id != user_id]
         self.save()
-        return True
-
-    def delete_user(self, user_id: int) -> bool:
-        user = self.find_user_by_id(user_id)
-        if user is None:
-            return False
-        self.users = [u for u in self.users if u.id != user_id]
-        self.save()
-        return True
-
-    def get_all_users(self) -> List[User]:
-        return self.users

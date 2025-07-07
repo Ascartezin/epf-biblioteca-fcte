@@ -1,49 +1,29 @@
-%rebase('layout', title='Usuários')
+% rebase('layout.tpl')
 
-<section class="users-section">
-    <div class="section-header">
-        <h1 class="section-title"><i class="fas fa-users"></i> Gestão de Usuários</h1>
-        <a href="/users/add" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Novo Usuário
-        </a>
-    </div>
+<h2>Lista de Usuários</h2>
 
-    <div class="table-container">
-        <table class="styled-table">
-            
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Data Nasc.</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Data de Nascimento</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        % for u in usuarios:
+        <tr>
+            <td>{{u.name}}</td>
+            <td>{{u.email}}</td>
+            <td>{{u.birthdate}}</td>
+            <td>
+                <a href="/usuarios/editar/{{u.id}}" class="btn btn-sm btn-primary">Editar</a>
+                <a href="/usuarios/deletar/{{u.id}}" class="btn btn-sm btn-danger" onclick="return confirm('Confirma exclusão do usuário?')">Excluir</a>
+            </td>
+        </tr>
+        % end
+    </tbody>
+</table>
 
-            <tbody>
-                % for u in users:
-                <tr>
-                    <td>{{u.id}}</td>
-                    <td>{{u.name}}</td>
-                    <td><a href="mailto:{{u.email}}">{{u.email}}</a></td>
-                    <td>{{u.birthdate}}</td>
-                    
-                    <td class="actions">
-                        <a href="/users/edit/{{u.id}}" class="btn btn-sm btn-edit">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-
-                        <form action="/users/delete/{{u.id}}" method="post" 
-                              onsubmit="return confirm('Tem certeza?')">
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="fas fa-trash-alt"></i> Excluir
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                % end
-            </tbody>
-        </table>
-    </div>
-</section>
+<a href="/usuarios/novo" class="btn btn-success">+ Adicionar Usuário</a>

@@ -1,4 +1,9 @@
-from bottle import static_file
+from bottle import static_file, request # <-- LINHA MODIFICADA
+import bottle # <-- LINHA ADICIONADA
+
+# Adiciona o objeto 'request' a todos os templates por padrão
+bottle.BaseTemplate.defaults['request'] = request # <-- LINHA ADICIONADA
+
 
 class BaseController:
     def __init__(self, app):

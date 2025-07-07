@@ -1,5 +1,5 @@
 from bottle import route, request, template, redirect
-from controllers.auth import require_login
+from controllers.auth_controller import require_login
 from services.emprestimo import EmprestimoService
 from services.user_service import UserService
 from services.livro_service import LivroService
