@@ -4,7 +4,7 @@ from config import Config
 
 import controllers.livro_controller
 import controllers.user_controller
-import controllers.auth_controller
+import controllers.auth
 import controllers.emprestimo_controller 
 
 

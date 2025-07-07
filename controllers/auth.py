@@ -1,22 +1,38 @@
-from bottle import request, redirect, route, response, template
-import bcrypt
+from bottle import request, redirect, response, route, template
 from services.user_service import user_service
 
+SECRET_KEY = 'Senha-123!'
 
-def require_login():
-    """Middleware para proteger rotas: redireciona para login se não autenticado."""
-    if not request.get_cookie("user"):
-        redirect('/login')
+def require_login(func):
+    def wrapper(*args, **kwargs):
+        user_cookie = request.get_cookie("logged_user", secret=SECRET_KEY)
+        if user_cookie:
+            return func(*args, **kwargs)
+        else:
+            return redirect('/login')
+    return wrapper
 
-@route('/login', method='POST')
+@route('/login', method=['GET', 'POST'])
 def login():
-    email = request.forms.get('email')
-    senha = request.forms.get('senha')
+    if request.get_cookie("logged_user", secret=SECRET_KEY):
+        return redirect('/usuarios')
 
-    for user in user_service.get_all_users():
-        if user.email == email and bcrypt.checkpw(senha.encode('utf-8'), user.senha_hash):
-            response.set_cookie('logged_user', user.name, path='/')
-            response.set_cookie('usuario_id', str(user.id), path='/')
+    if request.method == 'POST':
+        email = request.forms.get('email')
+        senha = request.forms.get('senha')
+        user = user_service.find_user_by_email(email)
+        if user and user.verificar_senha(senha):
+            response.set_cookie('logged_user', user.email, secret=SECRET_KEY, path='/')
             return redirect('/usuarios')
+        return template('login.tpl', erro="Email ou senha inválidos.", title='Login')
+    
+    return template('login.tpl', erro=None, title='Login')
 
-    return template('login.tpl', erro="Credenciais inválidas")
+@route('/logout')
+def logout():
+    response.delete_cookie("logged_user", path='/')
+    redirect('/login')
+
+@route('/')
+def index():
+    redirect('/login')

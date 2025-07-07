@@ -12,5 +12,12 @@
         "email": "maria@example.com",
         "birthdate": "1990-03-15",
         "senha_hash": "$2b$12$VhFur0IuW4EMZPCjlR7ZxO"
+    },
+    {
+        "id": 3,
+        "name": "Paulo ",
+        "email": "241025971@aluno.unb.br",
+        "birthdate": "2006-08-07",
+        "senha_hash": "$2b$12$MaWWs5RveADao3ObbV1ot.xJPUCOAQpWnOPYXP43wcSMWRE3CV1eu"
     }
 ]

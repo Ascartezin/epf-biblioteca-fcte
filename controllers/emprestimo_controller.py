@@ -1,10 +1,10 @@
 from bottle import route, request, template, redirect
 from datetime import datetime
-from controllers.auth_controller import require_login
 from services.emprestimo import emprestimo_service
 from services.user_service import user_service
 from services.livro_service import livro_service
 from models.emprestimo import Emprestimo
+from controllers.auth import require_login
 
 @route('/emprestimos')
 @require_login

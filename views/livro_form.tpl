@@ -1,32 +1,31 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Novo Livro</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Adicionar Novo Livro</h1>
+% rebase('layout.tpl', title=title)
 
-        % if defined('erro') and erro:
-            <p class="error">{{erro}}</p>
-        % endif
+<h2>{{ title }}</h2>
 
-        <form action="/livros/novo" method="post">
-            <div class="form-group">
-                <label for="nome">Nome do Livro:</label>
-                <input type="text" id="nome" name="nome" required value="{{nome or ''}}">
-            </div>
+% if erro:
+<div class="alert alert-danger">
+    {{ erro }}
+</div>
+% end
 
-            <div class="form-group">
-                <label for="autor">Autor:</label>
-                <input type="text" id="autor" name="autor" required value="{{autor or ''}}">
-            </div>
+<form action="{{ '/livros/atualizar' if livro else '/livros/criar' }}" method="post">
 
-            <button type="submit">Salvar Livro</button>
-        </form>
+    % if livro:
+        <input type="hidden" name="id" value="{{ livro.id }}">
+    % end
+
+    <div class="mb-3">
+        <label for="titulo" class="form-label">Título:</label>
+        <input type="text" name="titulo" id="titulo" class="form-control" 
+               value="{{ livro.titulo if livro else '' }}" required>
     </div>
-</body>
-</html>
+
+    <div class="mb-3">
+        <label for="autor" class="form-label">Autor:</label>
+        <input type="text" name="autor" id="autor" class="form-control" 
+               value="{{ livro.autor if livro else '' }}" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ 'Atualizar' if livro else 'Adicionar' }}</button>
+    <a href="/livros" class="btn btn-secondary">Cancelar</a>
+</form>
