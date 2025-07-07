@@ -1,7 +1,7 @@
 from bottle import request, redirect, response, route, template
 from services.user_service import user_service
 
-SECRET_KEY = 'Batata-Frita-Eh-Bom-Mas-Mude-Essa-Senha-123!'
+SECRET_KEY = 'Senha-123!'
 
 def require_login(func):
     def wrapper(*args, **kwargs):
@@ -14,6 +14,9 @@ def require_login(func):
 
 @route('/login', method=['GET', 'POST'])
 def login():
+    if request.get_cookie("logged_user", secret=SECRET_KEY):
+        return redirect('/usuarios')
+
     if request.method == 'POST':
         email = request.forms.get('email')
         senha = request.forms.get('senha')
@@ -22,6 +25,7 @@ def login():
             response.set_cookie('logged_user', user.email, secret=SECRET_KEY, path='/')
             return redirect('/usuarios')
         return template('login.tpl', erro="Email ou senha inválidos.", title='Login')
+    
     return template('login.tpl', erro=None, title='Login')
 
 @route('/logout')

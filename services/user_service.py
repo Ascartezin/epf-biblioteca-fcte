@@ -1,17 +1,21 @@
 import json
+from pathlib import Path
 from models.user import User
 
 class UserService:
-    def __init__(self, filepath='users.json'):
-        self.filepath = filepath
+    def __init__(self, filepath='data/users.json'):
+        self.filepath = Path(filepath)
+        self.filepath.parent.mkdir(parents=True, exist_ok=True)
         self.users = self.load()
 
     def load(self):
+        if not self.filepath.exists():
+            return []
         try:
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 return [User.from_dict(u) for u in data]
-        except (FileNotFoundError, json.JSONDecodeError):
+        except (json.JSONDecodeError, FileNotFoundError):
             return []
 
     def save(self):
@@ -24,10 +28,8 @@ class UserService:
     def add_user(self, user: User):
         if self.find_user_by_email(user.email):
             return False
-
         max_id = max((u.id for u in self.users), default=0)
         user.id = max_id + 1
-
         self.users.append(user)
         self.save()
         return True
@@ -57,7 +59,6 @@ class UserService:
         user_to_delete = self.find_user_by_id(user_id)
         if not user_to_delete:
             return False
-
         self.users = [user for user in self.users if user.id != user_id]
         self.save()
         return True

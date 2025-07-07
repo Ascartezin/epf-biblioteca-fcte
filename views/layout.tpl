@@ -23,7 +23,7 @@
                 <ul class="navbar-nav ms-auto">
                     % if request.get_cookie("logged_user"):
                         <li class="nav-item">
-                            <span class="nav-link">Olá, {{request.get_cookie("logged_user")}}</span>
+                            <span class="nav-link">Olá, {{ request.get_cookie('logged_user', secret='Senha-123!') }}
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/logout">Sair</a>

@@ -3,6 +3,14 @@
         "id": 1,
         "name": "UsuÃ¡rio Teste",
         "email": "uduarioteste@email.com",
-        "birthdate": "1999-10-21"
+        "birthdate": "1999-10-21",
+        "senha_hash": null
+    },
+    {
+        "id": 2,
+        "name": "Paulo ",
+        "email": "241025971@aluno.unb.br",
+        "birthdate": "2006-08-07",
+        "senha_hash": "$2b$12$QSW6DbCKmbtwEyXRZPrwruZRURfc0YDo7J9779RJOtvymY6fZ.F96"
     }
 ]
