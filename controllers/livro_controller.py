@@ -5,11 +5,11 @@ from models.livro import Livro
 @route('/livros')
 def listar_livros():
     livros = livro_service.get_all()
-    return template('livros', livros=livros)
+    return template('livros', livros=livros, title='Gerenciar Livros')
 
 @route('/livros/novo')
 def novo_livro():
-    return template('livro_form', livro=None)
+     return template('livro_form', nome='', autor='', erro='')
 
 @route('/livros', method='POST')
 def criar_livro():
@@ -23,7 +23,7 @@ def criar_livro():
 @route('/livros/<id>/edit')
 def editar_livro(id):
     livro = livro_service.get_by_id(id)
-    return template('livro_form', livro=livro)
+    return template('livro_form', livro=livro,  title='Editar Livro')
 
 @route('/livros/<id>', method='POST')
 def atualizar_livro(id):

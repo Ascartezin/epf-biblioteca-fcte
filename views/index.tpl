@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/static/style.css">
 
 
 <div class="home-container">
