@@ -33,7 +33,7 @@ poo-python-bottle-template/
 ---
 ## Diagrama de classes
 
-![Diagrama de Classes](A_UML_class_diagram_of_a_library_management_system.png)
+![Diagrama de Classes](diagrama_de_classes.png)
 
 ---
 
