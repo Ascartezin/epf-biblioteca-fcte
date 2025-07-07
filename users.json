@@ -1,6 +1,7 @@
 [
     {
         "id": 1,
+<<<<<<< HEAD
         "name": "Paulo ",
         "email": "241025971@aluno.unb.br",
         "birthdate": "2006-08-07",
@@ -12,5 +13,11 @@
         "email": "bpaulovitorgomes@gmail.com",
         "birthdate": "2006-08-07",
         "senha_hash": "$2b$12$4LY5o7OZ.GkYTrxUrjrnuOZT/vG2/jTvjk6PfD8KlF99S/8WOrCKG"
+=======
+        "name": "arthur",
+        "email": "arthurmezzaroba@gmail.com",
+        "birthdate": "2005-12-14",
+        "senha_hash": "$2b$12$h1iDDeQcs0jtS0XcmCmQ7.PvfEFsBaoNNJlFaumIzH9SVfUShh0oS"
+>>>>>>> 41a2817b353ac4373815e371767afe26a8bcacb4
     }
 ]
